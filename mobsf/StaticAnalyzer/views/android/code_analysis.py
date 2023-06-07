@@ -23,6 +23,7 @@ def code_analysis(app_dir, typ, manifest_file):
     try:
         root = Path(settings.BASE_DIR) / 'StaticAnalyzer' / 'views'
         code_rules = root / 'android' / 'rules' / 'android_rules.yaml'
+        masa_rules = root / 'android' / 'rules' / 'android_rules_dekra.yaml'
         api_rules = root / 'android' / 'rules' / 'android_apis.yaml'
         niap_rules = root / 'android' / 'rules' / 'android_niap.yaml'
         code_findings = {}
@@ -44,6 +45,8 @@ def code_analysis(app_dir, typ, manifest_file):
         skp = settings.SKIP_CLASS_PATH
         logger.info('Code Analysis Started on - %s',
                     filename_from_path(src))
+        
+
         # Code and API Analysis
         code_findings = scan(
             code_rules.as_posix(),
@@ -56,12 +59,25 @@ def code_analysis(app_dir, typ, manifest_file):
             [src],
             skp)
         # NIAP Scan
+        logger.info('Running NIAP Analyzer')
         niap_findings = niap_scan(
             niap_rules.as_posix(),
             {'.java', '.xml'},
             [src],
             manifest_file,
             None)
+        
+        # masa_findings = scan(
+        #     masa_rules.as_posix(),
+        #     {'.java', '.kt'},
+        #     [src],
+        #     skp)
+        
+        # print(masa_rules.as_posix())
+
+        # print('MASA FINDINGS')
+        # print(masa_findings)
+                
         # Extract URLs and Emails
         for pfile in Path(src).rglob('*'):
             if (
@@ -89,6 +105,7 @@ def code_analysis(app_dir, typ, manifest_file):
             'urls_list': url_list,
             'urls': url_n_file,
             'emails': email_n_file,
+            # 'masa': masa_findings
         }
         return code_an_dic
     except Exception:

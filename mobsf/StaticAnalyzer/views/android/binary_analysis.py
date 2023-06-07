@@ -3,8 +3,6 @@
 import logging
 from pathlib import Path
 
-from django.conf import settings
-
 import lief
 
 logger = logging.getLogger(__name__)
@@ -60,6 +58,40 @@ class Checksec:
                 '-fstack-protector-all to enable stack canaries.')
         elf_dict['stack_canary'] = {
             'has_canary': has_canary,
+            'severity': severity,
+            'description': desc,
+        }
+        relro = self.relro()
+        if relro == 'Full RELRO':
+            severity = 'info'
+            desc = (
+                'This shared object has full RELRO '
+                'enabled. RELRO ensures that the GOT cannot be '
+                'overwritten in vulnerable ELF binaries. '
+                'In Full RELRO, the entire GOT (.got and '
+                '.got.plt both) is marked as read-only.')
+        elif relro == 'Partial RELRO':
+            severity = 'warning'
+            desc = (
+                'This shared object has partial RELRO '
+                'enabled. RELRO ensures that the GOT cannot be '
+                'overwritten in vulnerable ELF binaries. '
+                'In partial RELRO, the non-PLT part of the GOT '
+                'section is read only but .got.plt is still '
+                'writeable. Use the option -z,relro,-z,now to '
+                'enable full RELRO.')
+        else:
+            severity = 'high'
+            desc = (
+                'This shared object does not have RELRO '
+                'enabled. The entire GOT (.got and '
+                '.got.plt both) are writable. Without this compiler '
+                'flag, buffer overflows on a global variable can '
+                'overwrite GOT entries. Use the option '
+                '-z,relro,-z,now to enable full RELRO and only '
+                '-z,relro to enable partial RELRO.')
+        elf_dict['relocation_readonly'] = {
+            'relro': relro,
             'severity': severity,
             'description': desc,
         }
@@ -157,6 +189,21 @@ class Checksec:
                 pass
         return False
 
+    def relro(self):
+        try:
+            gnu_relro = lief.ELF.SEGMENT_TYPES.GNU_RELRO
+            flags = lief.ELF.DYNAMIC_TAGS.FLAGS
+            bind_now = lief.ELF.DYNAMIC_FLAGS.BIND_NOW
+            if self.elf.get(gnu_relro):
+                eflags = self.elf.get(flags)
+                if eflags and bind_now in eflags:
+                    return 'Full RELRO'
+                else:
+                    return 'Partial RELRO'
+            return 'No RELRO'
+        except lief.not_found:
+            return 'No RELRO'
+
     def rpath(self):
         try:
             rpath = lief.ELF.DYNAMIC_TAGS.RPATH
@@ -190,32 +237,26 @@ class Checksec:
 
 def elf_analysis(app_dir: str) -> dict:
     """Perform elf analysis on shared object."""
-    elf = {'elf_analysis': [], 'elf_strings': []}
     try:
-        if not getattr(settings, 'SO_ANALYSIS_ENABLED', True):
-            return elf
+        strings = []
+        elf_list = []
         logger.info('Binary Analysis Started')
-        # Supports APK, AAR and JAR
-        libs = [
-            Path(app_dir) / 'lib',
-            Path(app_dir) / 'libs',
-            Path(app_dir) / 'jni']
-        for lib_dir in libs:
-            if not lib_dir.is_dir():
-                continue
-            for sofile in lib_dir.rglob('*.so'):
-                so_rel = (
-                    f'{sofile.parents[1].name}/'
-                    f'{sofile.parents[0].name}/'
-                    f'{sofile.name}')
-                logger.info('Analyzing %s', so_rel)
-                chk = Checksec(sofile, so_rel)
-                elf_find = chk.checksec()
-                if elf_find:
-                    elf['elf_analysis'].append(
-                        elf_find)
-                    elf['elf_strings'].append(
-                        {so_rel: chk.strings()})
+        libs = Path(app_dir) / 'lib'
+        elf = {'elf_analysis': elf_list, 'elf_strings': strings}
+        if not libs.is_dir():
+            return elf
+        for sofile in libs.rglob('*.so'):
+            so_rel = (
+                f'{sofile.parents[1].name}/'
+                f'{sofile.parents[0].name}/'
+                f'{sofile.name}')
+            logger.info('Analyzing %s', so_rel)
+            chk = Checksec(sofile, so_rel)
+            elf_find = chk.checksec()
+            if elf_find:
+                elf_list.append(elf_find)
+                strings.append({so_rel: chk.strings()})
+        return {'elf_analysis': elf_list, 'elf_strings': strings}
     except Exception:
         logger.exception('Performing Binary Analysis')
-    return elf
+        return elf

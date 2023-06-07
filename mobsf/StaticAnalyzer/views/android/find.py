@@ -21,9 +21,9 @@ logger = logging.getLogger(__name__)
 def run(request):
     """Find filename/content in source files (ajax response)."""
     try:
-        match = re.match('^[0-9a-f]{32}$', request.POST['md5'])
-        if not match:
-            raise ValueError('Invalid MD5 hash')
+        # match = re.match('^[0-9a-f]{32}$', request.POST['md5'])
+        # if not match:
+            # raise ValueError('Invalid MD5 hash')
         md5 = request.POST['md5']
         query = request.POST['q']
         code = request.POST['code']

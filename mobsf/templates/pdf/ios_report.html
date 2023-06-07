@@ -182,7 +182,7 @@
       <h5>Min OS Version:</h5> {{ min_os_version }}</br>
       <h5>Supported Platforms:</h5> {% for pl in bundle_supported_platforms %} {{pl}}, {% endfor %}</br>
 
-     {% if binary_info %}
+     {% if binary_analysis %}
       <h2><i class="fas fa-ad"></i> BINARY INFORMATION </h2>
 
       <h5>Arch:</h5> {{ binary_info.arch }}</br>
@@ -260,16 +260,6 @@
 
        {% if ats_analysis  %}
       <h2><i class="fas fa-lock"></i> APP TRANSPORT SECURITY (ATS)</h2>
-      {% if ats_analysis and 'ats_summary' in ats_analysis and ats_analysis.ats_summary|length > 0 %}
-      <span class="danger">HIGH: </span>
-      <h5 class="description-header">{{ ats_analysis.ats_summary.high }}</h5> | 
-      <span class="warning"></i> WARNING: </span>
-      <h5 class="description-header">{{ ats_analysis.ats_summary.warning }}</h5> |
-      <span class="info">INFO: </span>
-      <h5 class="description-header">{{ ats_analysis.ats_summary.info }}</h5> |
-      <span class="success">SECURE: </span>
-      <h5 class="description-header">{{ ats_analysis.ats_summary.secure }}</h5>
-    {% endif %}</br>
        <table class="basic">
                    <thead>
                       <tr>
@@ -280,8 +270,8 @@
                       </tr>
                   </thead>
                   <tbody>
-                    {% if ats_analysis and 'ats_findings' in ats_analysis %}
-                      {% for findings in ats_analysis.ats_findings %}
+                    {% if ats_analysis|length > 0 %}
+                      {% for findings in ats_analysis %}
                         <tr>
                           <td>{{ forloop.counter }}</td>
                           <td>
@@ -302,10 +292,20 @@
                           </td>
                         </tr>
                       {% endfor %}
+                    {% else %}
+                    <tr>
+                      <td>
+                        No ATS exceptions found.
+                      <td>
+                        <span class="success">secure</span>
+                      </td>
+                      <td>
+                        No insecure connections configured. App Transport Security (ATS) is enabled.
+                      </td>
+                    </tr>
                     {% endif %}
                   </tbody>
                     </table>
-                  
         {% endif %}
 
       
@@ -370,18 +370,6 @@
       
       {% if binary_analysis  %}
       <h2><i class="fas fa-code"></i> IPA BINARY CODE ANALYSIS</h2>
-      {% if binary_analysis and 'summary' in binary_analysis and binary_analysis.summary|length > 0 %}
-      <span class="danger">HIGH: </span>
-      <h5 class="description-header">{{ binary_analysis.summary.high }}</h5> | 
-      <span class="warning"></i> WARNING: </span>
-      <h5 class="description-header">{{ binary_analysis.summary.warning }}</h5> |
-      <span class="info">INFO: </span>
-      <h5 class="description-header">{{ binary_analysis.summary.info }}</h5> |
-      <span class="success">SECURE: </span>
-      <h5 class="description-header">{{ binary_analysis.summary.secure }}</h5> |
-      <span class="disabled">SUPPRESSED: </span>
-      <h5 class="description-header">{{ binary_analysis.summary.suppressed }}</h5>
-    {% endif %}</br>
        <table class="basic">
                   <thead>
                       <tr>
@@ -394,8 +382,7 @@
                       </tr>
                   </thead>
                      <tbody>
-                   {% if binary_analysis and 'findings' in binary_analysis %}
-                   {% for issue, details in binary_analysis.findings.items %}
+                   {% for issue, details in binary_analysis.items %}
                     <tr>
                       <td>{{ forloop.counter }}</td>
                       <td>
@@ -435,10 +422,8 @@
                       </td>
                     </tr>
                     {% endfor %}
-                    {% endif %}
                  </tbody>
                     </table>
-               
         {% endif %}
         {% if macho_analysis  %}
       <h2><i class="fas fa-flag"></i> IPA BINARY ANALYSIS</h2>
@@ -509,18 +494,6 @@
         {% endif %}
     {% if code_analysis  %}
       <h2><i class="fas fa-code"></i> CODE ANALYSIS</h2>
-      {% if code_analysis and 'summary' in code_analysis and code_analysis.summary|length > 0 %}
-      <span class="danger">HIGH: </span>
-      <h5 class="description-header">{{ code_analysis.summary.high }}</h5> | 
-      <span class="warning"></i> WARNING: </span>
-      <h5 class="description-header">{{ code_analysis.summary.warning }}</h5> |
-      <span class="info">INFO: </span>
-      <h5 class="description-header">{{ code_analysis.summary.info }}</h5> |
-      <span class="success">SECURE: </span>
-      <h5 class="description-header">{{ code_analysis.summary.secure }}</h5> |
-      <span class="disabled">SUPPRESSED: </span>
-      <h5 class="description-header">{{ code_analysis.summary.suppressed }}</h5>
-    {% endif %}</br>
        <table class="basic">
                 <thead>
                     <tr>
@@ -532,8 +505,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                  {% if code_analysis and 'findings' in code_analysis %}
-									 {% for rule, details in code_analysis.findings.items %}
+									 {% for rule, details in code_analysis.items %}
                   <tr>
                   <td>{{ forloop.counter }}</td>
                   <td width="25%">
@@ -579,11 +551,9 @@
                   {% endfor %}
                   </td>
                 </tr>    
-              {% endfor %}
-              {% endif %}
-              </tbody>
-              </table>
-                   
+              {% endfor %} 
+										</tbody>
+										</table>
       {% endif %}
       {% if domains  %}
       <h2><i class="fab fa-searchengin"></i> DOMAIN MALWARE CHECK</h2>

@@ -67,9 +67,8 @@ def static_analyzer_ios(request, api=False):
             filename = request.GET['name']
         if re_scan == '1':
             rescan = True
-        md5_match = re.match('^[0-9a-f]{32}$', checksum)
-        if ((md5_match)
-                and (filename.lower().endswith('.ipa')
+        # md5_match = re.match('^[0-9a-f]{32}$', checksum)
+        if ((filename.lower().endswith('.ipa')
             or filename.lower().endswith('.zip'))
                 and (file_type in ['ipa', 'ios'])):
             app_dict = {}

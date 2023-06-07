@@ -21,7 +21,6 @@ from mobsf.MobSF.utils import (
     is_dir_exists,
     is_file_exists,
     is_safe_path,
-    key,
     print_n_send_error_response,
 )
 from mobsf.MobSF.views.helpers import FileType
@@ -37,7 +36,12 @@ from mobsf.StaticAnalyzer.models import (
 LINUX_PLATFORM = ['Darwin', 'Linux']
 HTTP_BAD_REQUEST = 400
 logger = logging.getLogger(__name__)
-register.filter('key', key)
+
+
+@register.filter
+def key(d, key_name):
+    """To get dict element by key name in template."""
+    return d.get(key_name)
 
 
 def index(request):
@@ -110,8 +114,8 @@ class Upload(object):
         response_data = self.upload()
         return self.resp_json(response_data)
 
-    def upload_api(self):
-        """API File Upload."""
+    def upload_api(self, uuid):
+        # """API File Upload."""
         api_response = {}
         request = self.request
         if not self.form.is_valid():
@@ -122,25 +126,24 @@ class Upload(object):
         if not self.file_type.is_allow_file():
             api_response['error'] = 'File format not Supported!'
             return api_response, HTTP_BAD_REQUEST
-        api_response = self.upload()
+        api_response = self.upload(uuid)
         return api_response, 200
 
-    def upload(self):
+    def upload(self, uuid):
         request = self.request
+
+        print('REQUEST: ')
+        print(request.GET)
         scanning = Scanning(request)
         content_type = self.file.content_type
         file_name = self.file.name
         logger.info('MIME Type: %s FILE: %s', content_type, file_name)
         if self.file_type.is_apk():
-            return scanning.scan_apk()
+            return scanning.scan_apk(uuid)
         elif self.file_type.is_xapk():
             return scanning.scan_xapk()
         elif self.file_type.is_apks():
             return scanning.scan_apks()
-        elif self.file_type.is_jar():
-            return scanning.scan_jar()
-        elif self.file_type.is_aar():
-            return scanning.scan_aar()
         elif self.file_type.is_zip():
             return scanning.scan_zip()
         elif self.file_type.is_ipa():
@@ -167,16 +170,6 @@ def about(request):
         'version': settings.MOBSF_VER,
     }
     template = 'general/about.html'
-    return render(request, template, context)
-
-
-def donate(request):
-    """Donate Route."""
-    context = {
-        'title': 'Donate',
-        'version': settings.MOBSF_VER,
-    }
-    template = 'general/donate.html'
     return render(request, template, context)
 
 

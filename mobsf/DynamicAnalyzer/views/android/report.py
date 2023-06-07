@@ -31,14 +31,18 @@ from mobsf.MobSF.utils import (
     is_md5,
     is_path_traversal,
     is_safe_path,
-    key,
     print_n_send_error_response,
     read_sqlite,
 )
 
 
 logger = logging.getLogger(__name__)
-register.filter('key', key)
+
+
+@register.filter
+def key(d, key_name):
+    """To get dict element by key name in template."""
+    return d.get(key_name)
 
 
 def view_report(request, checksum, api=False):
@@ -126,10 +130,10 @@ def view_file(request, api=False):
             fil = request.GET['file']
             md5_hash = request.GET['hash']
             typ = request.GET['type']
-        if not is_md5(md5_hash):
-            return print_n_send_error_response(request,
-                                               'Invalid Parameters',
-                                               api)
+        # if not is_md5(md5_hash):
+            # return print_n_send_error_response(request,
+                                            #    'Invalid Parameters',
+                                            #    api)
         src = os.path.join(
             settings.UPLD_DIR,
             md5_hash,

@@ -73,8 +73,8 @@ def staticanalyzer_windows(request, api=False):
             filename = request.GET['name']
         if re_scan == '1':
             rescan = True
-        md5_regex = re.match('^[0-9a-f]{32}$', checksum)
-        if (md5_regex) and (typ in ['appx']):
+        # md5_regex = re.match('^[0-9a-f]{32}$', checksum)
+        if (typ in ['appx']):
             app_dic['app_name'] = filename  # APP ORIGINAL NAME
             app_dic['md5'] = checksum
             app_dic['app_dir'] = os.path.join(
@@ -360,7 +360,7 @@ def parse_binskim_sarif(bin_an_dic, output):
             bin_an_dic['results'].append(result)
     else:
         logger.warning('binskim has no results.')
-        # Create an warning for the gui
+        # Create an warining for the gui
         warning = {
             'rule_id': 'No Binskim-Results',
             'status': 'Info',
@@ -400,7 +400,7 @@ def parse_binskim_old(bin_an_dic, output):
             bin_an_dic['results'].append(result)
     else:
         logger.warning('binskim has no results.')
-        # Create an warning for the gui
+        # Create an warining for the gui
         warning = {
             'rule_id': 'No Binskim-Results',
             'status': 'Info',

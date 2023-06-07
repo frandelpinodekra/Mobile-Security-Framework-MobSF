@@ -45,9 +45,9 @@ def run(request):
     """Source Tree - Java/Smali view."""
     try:
         logger.info('Listing Source files')
-        match = re.match('^[0-9a-f]{32}$', request.GET['md5'])
-        if not match:
-            return print_n_send_error_response(request, 'Scan hash not found')
+        # match = re.match('^[0-9a-f]{32}$', request.GET['md5'])
+        # if not match:
+            # return print_n_send_error_response(request, 'Scan hash not found')
         md5 = request.GET['md5']
         typ = request.GET['type']
         base = Path(settings.UPLD_DIR) / md5

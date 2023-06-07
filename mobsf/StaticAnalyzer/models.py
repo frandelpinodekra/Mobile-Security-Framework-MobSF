@@ -3,6 +3,19 @@ from datetime import datetime
 from django.db import models
 # Create your models here.
 
+class MASAAnalysis(models.Model):
+    ID =        models.CharField(max_length=100, default='', primary_key=True)
+    APP_ID =    models.CharField(max_length=255, default='')
+    STORAGE_2 = models.TextField(default=[])
+    CRYPTO_1 =  models.TextField(default=[])
+    CRYPTO_3 =  models.TextField(default=[])
+    PLATFORM_2 = models.TextField(default=[])
+    # PLATFORM_3 = models.TextField(default=[])
+    # NETWORK_1 = models.TextField(default=[])
+    NETWORK_2 = models.TextField(default=[])
+    # NETWORK_3 = models.TextField(default=[])
+    CODE_1 =    models.TextField(default=[])
+    CODE_2 =    models.TextField(default=[])
 
 class RecentScansDB(models.Model):
     ANALYZER = models.CharField(max_length=50, default='')
@@ -11,22 +24,25 @@ class RecentScansDB(models.Model):
     APP_NAME = models.CharField(max_length=260, default='')
     PACKAGE_NAME = models.CharField(max_length=260, default='')
     VERSION_NAME = models.CharField(max_length=50, default='')
-    MD5 = models.CharField(max_length=32, default='', primary_key=True)
+    MD5 = models.CharField(max_length=100, default='', primary_key=True)
+    HASH = models.CharField(max_length=32, default='')
     TIMESTAMP = models.DateTimeField(default=datetime.now)
 
 
 class StaticAnalyzerAndroid(models.Model):
+    HASH = models.CharField(max_length=32, default='')
     FILE_NAME = models.CharField(max_length=260, default='')
     APP_NAME = models.CharField(max_length=255, default='')
     APP_TYPE = models.CharField(max_length=20, default='')
     SIZE = models.CharField(max_length=50, default='')
-    MD5 = models.CharField(max_length=32, default='', primary_key=True)
+    MD5 = models.CharField(max_length=100, default='', primary_key=True)
     SHA1 = models.CharField(max_length=40, default='')
     SHA256 = models.CharField(max_length=64, default='')
     PACKAGE_NAME = models.TextField(default='')
     MAIN_ACTIVITY = models.TextField(default='')
     EXPORTED_ACTIVITIES = models.TextField(default='')
     BROWSABLE_ACTIVITIES = models.TextField(default={})
+    CUSTOM_SCHEMES = models.TextField(default={})
     ACTIVITIES = models.TextField(default=[])
     RECEIVERS = models.TextField(default=[])
     PROVIDERS = models.TextField(default=[])
@@ -122,10 +138,3 @@ class StaticAnalyzerWindows(models.Model):
     STRINGS = models.TextField(default=[])
     BINARY_ANALYSIS = models.TextField(default=[])
     BINARY_WARNINGS = models.TextField(default=[])
-
-
-class SuppressFindings(models.Model):
-    PACKAGE_NAME = models.CharField(max_length=260, default='')
-    SUPPRESS_RULE_ID = models.TextField(default=[])
-    SUPPRESS_FILES = models.TextField(default={})
-    SUPPRESS_TYPE = models.TextField(default='')

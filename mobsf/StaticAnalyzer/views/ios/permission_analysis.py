@@ -74,9 +74,6 @@ COCOA_KEYS = {
     'NSVideoSubscriberAccountUsageDescription': (
         'Access the user’s TV provider account.',
         'normal'),
-    'NSLocalNetworkUsageDescription': (
-        'Allow app to request access to the local network.',
-        'normnal'),
 }
 
 

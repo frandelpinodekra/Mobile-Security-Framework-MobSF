@@ -1,0 +1,72 @@
+# ------------------------ CRYPTO ------------------------#
+- id: dekra-crypto-1
+  message: hola
+  type: Regex
+  pattern: import java(x)?\.(security|crypto).*;(\n|.)*((final String [a-zA-Z0-9]+[ ]*\=)|(==\")|(byte\[\] [a-zA-Z0-9]* = [{]{1}[ ]?[0-9]+)|(SecretKeySpec\(((\{[0-9]+)|(\"[a-zA-Z0-9]+\"))))
+  severity: warning
+  input_case: exact
+  metadata:
+    title: Hardcoded keys
+    info: Contains hardcoded encryption keys.
+    description: Allows accessing to the key to anyone who can access to the code. 
+    masvs: crypto_1
+
+- id: dekra-crypto-3
+  message: hola
+  type: RegexOr
+  pattern: 
+  - AES/CBC/PKCS5Padding
+  - DES/CBC/PKCS5Padding
+  - .*/ECB/.*
+  - ^(TLS).*-CBC-.*
+  severity: dangerous
+  input_case: exact
+  metadata:
+    title: Insecure cryptographic algorithms
+    info: Uses vulnerable cryptographic algorithms as DES, 3DES or ECB.
+    description: Allows cryptographic attacks which may result in recovery of the plaintext. 
+    masvs: crypto_3
+
+# ------------------------ PLATFORM ------------------------ #
+- id: dekra-platform-2
+  message: hola
+  type: RegexOr
+  pattern: 
+  - \"[ ]*(ALTER|CREATE|DELETE|DROP|EXEC(UTE){0,1}|INSERT( +INTO){0,1}|MERGE|SELECT|UPDATE|UNION( +ALL){0,1})[a-zA-Z0-9\ \*_\-]+(\=)(\ |\")[ ]?\\+
+  - .+shouldOverrideUrlLoading\(.+\)\s+{[\s\n]*return false;[\s\n]*}
+  severity: warning
+  input_case: exact
+  metadata:
+    title: SQL injection
+    info: There is SQL injection. 
+    description: Allows manipulating database information.
+    masvs: platform_2
+
+
+# ------------------------ NETWORK ------------------------#
+- id: dekra-network-2
+  message: hola
+  type: RegexOr
+  pattern: 
+  - ((SSLv2).*(deprecated))|((SSLv3).*(deprecated))|((TLS 1).*(deprecated))|((TLS 1.1).*(deprecated))
+  - ((TLSv1:)|(TLSv1.1:)).*(-DES-[A-Z0-9]+)
+  severity: warning
+  input_case: exact
+  metadata:
+    title: TLS protocol version
+    info: Uses legacy TLS version that have have cryptographic weaknesses.
+    description: Allows cryptographic attacks which may result in recovery the data.
+    masvs: network_2
+
+- id: dekra-network-3
+  message: hola
+  type: Regex
+  pattern: 
+  - (import java(x)?\.(.*)HostnameVerifier;)
+  severity: good
+  input_case: exact
+  metadata:
+    title: 
+    info: 
+    description: 
+    masvs: network_3

@@ -4,7 +4,6 @@
       sidebar-mini
      {% endblock %}
     {% block extra_css %}
-    <link href="{% static "adminlte/plugins/sweetalert2/sweetalert2.min.css" %}" rel="stylesheet">
     <!-- DataTables -->
     <link rel="stylesheet" href="{% static "adminlte/plugins/datatables-bs4/dataTables.bootstrap4.min.css" %}">
      <style type="text/css" media="print">
@@ -302,13 +301,16 @@
 
                 </div>
                 <div class="col-6">
+                  <p><strong><i class="fas fa-box-open"></i> UUID </strong></p>                         
+                  <span class="badge bg-primary">UUID</span>
+                  {{ md5 }}<br/>
                   <p><strong><i class="fas fa-box-open"></i> FILE INFORMATION </strong></p>                         
                   <span class="badge bg-primary">File Name</span>
                   {{ file_name }}<br/>
                   <span class="badge bg-primary">Size</span>
                   {{ size }}<br/>
                   <span class="badge bg-primary">MD5</span>
-                  {{ md5 }}<br/>
+                  {{ hash }}<br/>
                   <span class="badge bg-primary">SHA1</span>
                   {{ sha1 }}<br/>           
                   <span class="badge bg-primary">SHA256</span>
@@ -534,8 +536,7 @@
                 </p>
                 <p align="center">
                   <a href="../static_analyzer/?checksum={{ md5 }}&amp;name={{ file_name }}&amp;type=zip&amp;rescan=1" class="btn btn-info" role="button"><i class="fa fa-sync"></i> Rescan</a>
-                  <a id="supbtn" onclick="list_suppressions()" role="button" class="btn btn-primary" data-target="#sup_list" data-toggle="modal" href="#"><i class="fa fa-list"></i> Manage Suppressions</a>
-                  <a target="_blank" href="../manifest_view/?md5={{ md5 }}&amp;type={{ app_type }}" role="button" class="btn btn-primary"><i class="fa fa-eye"></i>  View AndroidManifest.xml</a>
+                  <a target="_blank" href="../manifest_view/?md5={{ md5 }}&amp;type={{ app_type }}&amp;bin=0" role="button" class="btn btn-primary"><i class="fa fa-eye"></i>  View AndroidManifest.xml</a>
                   <a href="{% url "tree_view" %}?md5={{ md5 }}&amp;type=java" class="btn btn-info" role="button"><i class="fa fa-code"></i> View Source</a>
                 </p>
               </div>
@@ -734,43 +735,7 @@
              <strong><i class="fas fa-lock"></i> NETWORK SECURITY</strong>
              </p>
               <div class="table-responsive">
-                {% if network_security and 'network_summary' in network_security and network_security.network_summary|length > 0%}
-                <div class="row">
-                  <div class="col-sm-3 col-6">
-                  <div class="description-block border-right">
-                  <span class="text-danger">HIGH</span>
-                  <h5 class="description-header">{{ network_security.network_summary.high }}</h5>
-                  </div>
-                  </div>
-                  
-                  <div class="col-sm-3 col-6">
-                  <div class="description-block border-right">
-                  <span class="text-warning"></i> WARNING</span>
-                  <h5 class="description-header">{{ network_security.network_summary.warning }}</h5>
-                  </div>
-                  
-                  </div>
-                  
-                  <div class="col-sm-3 col-6">
-                  <div class="description-block border-right">
-                  <span class="text-info">INFO</span>
-                  <h5 class="description-header">{{ network_security.network_summary.info }}</h5>
-                  </div>
-                  
-                  </div>
-
-                  <div class="col-sm-3 col-6">
-                    <div class="description-block">
-                    <span class="text-success">SECURE</span>
-                    <h5 class="description-header">{{ network_security.network_summary.secure }}</h5>
-                    </div>
-                    
-                    </div>
-                    
-                  
-                  </div>
-                  {% endif %}
-                <table id="table_network" class="table table-bordered table-hover table-striped">
+                <table id="table_manifest" class="table table-bordered table-hover table-striped">
                       <thead>
                       <tr>
                           <th>NO</th>
@@ -780,8 +745,8 @@
                         </tr>
                     </thead>
                     <tbody>
-                    {% if network_security and 'network_findings' in network_security %}
-                    {% for item in network_security.network_findings %}
+                                      
+                    {% for item in network_security %}
                       <tr>
                         <td>{{ forloop.counter }}</td>
                         <td>
@@ -806,11 +771,8 @@
    
                        </tr>
                      {% endfor %}
-                     {% endif %}
                     </tbody>
                   </table>
-                 
-                    
                   </div>
           </div>
         </div><!-- /.card -->
@@ -831,42 +793,6 @@
              <strong><i class="fas fa-search"></i> MANIFEST ANALYSIS</strong>
              </p>
               <div class="table-responsive">
-                {% if manifest_analysis and 'manifest_summary' in manifest_analysis and manifest_analysis.manifest_summary|length > 0%}
-                <div class="row">
-                  <div class="col-sm-3 col-6">
-                  <div class="description-block border-right">
-                  <span class="text-danger">HIGH</span>
-                  <h5 class="description-header">{{ manifest_analysis.manifest_summary.high }}</h5>
-                  </div>
-                  </div>
-                  
-                  <div class="col-sm-3 col-6">
-                  <div class="description-block border-right">
-                  <span class="text-warning"></i> WARNING</span>
-                  <h5 class="description-header">{{ manifest_analysis.manifest_summary.warning }}</h5>
-                  </div>
-                  
-                  </div>
-                  
-                  <div class="col-sm-3 col-6">
-                  <div class="description-block border-right">
-                  <span class="text-info">INFO</span>
-                  <h5 class="description-header">{{ manifest_analysis.manifest_summary.info }}</h5>
-                  </div>
-                  
-                  </div>
-
-                  <div class="col-sm-3 col-6">
-                    <div class="description-block">
-                    <span class="text-disabled">SUPPRESSED</span>
-                    <h5 class="description-header">{{ manifest_analysis.manifest_summary.suppressed }}</h5>
-                    </div>
-                    
-                    </div>
-                    
-                  
-                  </div>
-                  {% endif %}
                 <table id="table_manifest" class="table table-bordered table-hover table-striped">
                       <thead>
                       <tr>
@@ -874,12 +800,11 @@
                           <th>ISSUE</th>
                           <th>SEVERITY</th>
                           <th>DESCRIPTION</th>
-                          <th>OPTIONS</th>
                         </tr>
                     </thead>
                     <tbody>
-                      {% if manifest_analysis and 'manifest_findings' in manifest_analysis %}
-                      {% for item in manifest_analysis.manifest_findings %}
+                                      
+                    {% for item in manifest_analysis %}
                       <tr>
                         <td>{{ forloop.counter }}</td>
                         <td>
@@ -887,36 +812,23 @@
                         </td>
                         <td>
 
-                          {% if item|key:"severity" == "high" %}
+                          {% if item|key:"stat" == "high" %}
                             <span class="badge bg-danger">high</span>
-                          {% elif item|key:"severity" == "info" %}
+                          {% elif item|key:"stat" == "info" %}
                             <span class="badge bg-info">info</span>
-                          {% elif item|key:"severity" == "warning" %}
+                          {% elif item|key:"stat" == "warning" %}
                             <span class="badge bg-warning">warning</span>
                           {% endif %}
                          
                         </td>
                         <td>
-                        {{item|key:"description"}}
+                        {{item|key:"desc"}}
                         </td>
-                        <td>
-                          <div class="dropdown show">
-                            <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                              <i class="fa fa-eye-slash"></i>
-                            </a>
-      
-                            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                              <a style="cursor:pointer;" class="dropdown-item" onclick="suppress('{{ item|key:"title" | android_component}}{{item|key:'rule' | escapejs }}', false, $(this.closest('tr')), true)">Suppress the rule <b>{{ item|key:"title" | android_component}}{{ item|key:'rule' }}</b> in <b>{{package_name}}</b></a>
-                            </div>
-                          </div>
-                        </td>
+   
                        </tr>
                      {% endfor %}
-                     {% endif %}
                     </tbody>
                   </table>
-                 
-
                   </div>
           </div>
         </div><!-- /.card -->
@@ -937,50 +849,6 @@
              <strong><i class="fas fa-code"></i> CODE ANALYSIS</strong>
              </p>
               <div class="table-responsive">
-                {% if code_analysis and 'summary' in code_analysis and code_analysis.summary|length > 0 %}
-            <div class="row">
-              <div class="col-sm-2 col-6">
-              <div class="description-block border-right">
-              <span class="text-danger">HIGH</span>
-              <h5 class="description-header">{{ code_analysis.summary.high }}</h5>
-              </div>
-              </div>
-              
-              <div class="col-sm-2 col-6">
-              <div class="description-block border-right">
-              <span class="text-warning"></i> WARNING</span>
-              <h5 class="description-header">{{ code_analysis.summary.warning }}</h5>
-              </div>
-              
-              </div>
-              
-              <div class="col-sm-2 col-6">
-              <div class="description-block border-right">
-              <span class="text-info">INFO</span>
-              <h5 class="description-header">{{ code_analysis.summary.info }}</h5>
-              </div>
-              
-              </div>
-              
-              <div class="col-sm-2 col-6">
-                <div class="description-block border-right">
-                <span class="text-success">SECURE</span>
-                <h5 class="description-header">{{ code_analysis.summary.secure }}</h5>
-                </div>
-                
-                </div>
-
-              <div class="col-sm-2 col-6">
-                <div class="description-block">
-                <span class="text-disabled">SUPPRESSED</span>
-                <h5 class="description-header">{{ code_analysis.summary.suppressed }}</h5>
-                </div>
-                
-                </div>
-                
-              
-              </div>
-              {% endif %}
                 <table id="table_code" class="table table-bordered table-hover table-striped">
                     <thead>
                     <tr>
@@ -989,12 +857,10 @@
                       <th>SEVERITY</th>
                       <th>STANDARDS</th>
                       <th>FILES</th>
-                      <th>OPTIONS</th>
                   </tr>
                     </thead>
                     <tbody>
-                  {% if code_analysis and 'findings' in code_analysis %}
-                  {% for rule, details in code_analysis.findings.items %}
+               {% for rule, details in code_analysis.items %}
                   <tr>
                   <td>{{ forloop.counter }}</td>
                   <td>
@@ -1040,27 +906,10 @@
                   <br/>
                   {% endfor %}
                   </td>
-                  <td>
-
-                    <div class="dropdown show">
-                      <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="fa fa-eye-slash"></i>
-                      </a>
-                    
-                      <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                        <a style="cursor:pointer;" class="dropdown-item" onclick="suppress('{{rule | escapejs }}', false, $(this.closest('tr')))">Suppress the rule <b>{{ rule }}</b> in <b>{{package_name}}</b></a>
-                        <a style="cursor:pointer;" class="dropdown-item" onclick="suppress('{{rule | escapejs }}', true, $(this.closest('tr')))">Suppress the rule <b>{{ rule }}</b> in <b>{{package_name}}</b> only from these files</a>
-                      </div>
-                    </div>
-
-                  </td>
                 </tr>    
               {% endfor %} 
-              {% endif %}
               </tbody>
             </table>
-            
-
             </div>
           </div>
         </div><!-- /.card -->
@@ -1614,42 +1463,9 @@
  <!-- ===========================end files ================================== -->
 <!-- end of contents -->
 </div>
-
-
-<!--Modals-->
-<div class="modal" id="sup_list" tabindex="-1" role="dialog">
-  <div class="modal-dialog modal-xl">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h4 class="modal-title">Suppression Rules</h4>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">×</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <table id="sup_table" class="table table-bordered table-hover table-striped">
-          <thead>
-            <tr>
-                <th>Suppression Type</th>
-                <th>By Rule ID</th>
-                <th>By Files</th>
-            </tr>
-        </thead>
-        <tbody>
-        </tbody>
-        </table>
-      </div>
-    </div>
-    <!-- /.modal-content -->
-  </div>
-  <!-- /.modal-dialog -->
-</div>
-
-
 {% endblock %}
 <!--end new UI-->
 {% block extra_scripts %}
-<script src="{% static "adminlte/plugins/sweetalert2/sweetalert2.min.js" %}"></script>
 <!-- DataTables -->
 <script src="{% static "adminlte/plugins/datatables/jquery.dataTables.min.js" %} "></script>
 <script src="{% static "adminlte/plugins/datatables-bs4/dataTables.bootstrap4.min.js" %}"></script>
@@ -1658,19 +1474,6 @@
 <script src="{% static "amcharts/worldIndiaLow.js" %}"></script>
 <script src="{% static "amcharts/animated.js" %}"></script>
 <script>
-  var list_suppressions_url = '{% url 'list_suppressions' %}';
-  var suppress_by_files_url = '{% url 'suppress_by_files' %}';
-  var suppress_by_rule_url = '{% url 'suppress_by_rule' %}';
-  var delete_suppression_url = '{% url 'delete_suppression' %}';
-</script>
-<script src="{% static "others/js/suppression.js" %}"></script>
-<script>
-
-  // Globals
-  const csrf = '{{ csrf_token }}'
-  const pkg = '{{ package_name }}'
-  const hash = '{{md5}}'
-
   $(function () {
     // Datatable
     $('table').DataTable({
